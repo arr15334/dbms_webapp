@@ -1,0 +1,15 @@
+/* Bulma Overwrite */
+$primary: #6fc7ef;
+$dark: #197BBC;
+
+/* Font Awesome Overwrite */
+$fa-font-path: '~font-awesome/fonts';
+
+@import '~font-awesome/scss/font-awesome.scss';
+@import '~bulma/bulma.sass';
+@import '~animate.css/animate.css';
+@import '~flatpickr/dist/flatpickr.css';
+
+.is-responsive {
+  overflow-x: auto;
+}

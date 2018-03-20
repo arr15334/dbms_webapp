@@ -1,0 +1,54 @@
+variables:
+  S3_REGION: "us-east-1"
+  S3_STAGE_BUCKET_NAME: "stage.mhfile.com"
+  S3_PROD_BUCKET_NAME: "app.mhfile.com"
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: node:latest
+  script:
+    - echo "Building the app"
+    - npm install
+    - npm run build
+  artifacts:
+    name: dist
+    expire_in: 1 week
+    paths:
+      - dist/
+  only:
+    - stage
+    - master
+
+deploy_stage:
+  stage: deploy
+  dependencies:
+    - build
+  image: ruby:latest
+  script:
+    - echo "Deploy to stage server"
+    - gem install dpl
+    - dpl --skip_cleanup --provider=s3 --bucket=$S3_STAGE_BUCKET_NAME --region=$S3_REGION --local-dir=dist
+  environment:
+    name: stage
+    url: https://stage.mhfile.com
+  only:
+    - stage
+
+deploy_prod:
+  stage: deploy
+  dependencies:
+    - build
+  image: ruby:latest
+  script:
+    - echo "Deploy to production server"
+    - gem install dpl
+    - dpl --skip_cleanup --provider=s3 --bucket=$S3_PROD_BUCKET_NAME --region=$S3_REGION --local-dir=dist
+  environment:
+    name: production
+    url: https://app.mhfile.com
+  only:
+    - master
