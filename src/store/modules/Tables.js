@@ -67,6 +67,31 @@ const actions = {
           reject(err)
         })
     })
+  },
+  table_drop (context, data = {}) {
+    const env = config.env
+    const apiRoot = config[env].apiRoot
+
+    const db = data.db || ''
+    const tableName = data.tableName || ''
+    const columns = data.columns || []
+    const include = data.include || ''
+
+    let url = apiRoot + config.apiTables
+    url = url.replace('{db}', db)
+    url = url.replace('{table}', tableName)
+
+    return new Promise((resolve, reject) => {
+      api
+        .destroy(url)
+        .then(response => {
+          const data = response.data
+          resolve(data)
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
   }
 }
 

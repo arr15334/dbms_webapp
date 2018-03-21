@@ -69,9 +69,9 @@
         }
         if (action === 'DROP') {
           if (obj === 'DATABASE') {
-            //
+            this.dropDatabase(query[2])
           } else if (obj === 'TABLE') {
-            // d
+            this.dropTable(query[2])
           } else {
             // error
           }
@@ -100,6 +100,15 @@
         return this
           .$store.dispatch('database_create', {
             dbName: name
+          })
+          .then((res) => {
+            console.log(res)
+          })
+      },
+      dropDatabase: function (name) {
+        return this
+          .$store.dispatch('database_drop', {
+            db: name
           })
           .then((res) => {
             console.log(res)
@@ -147,6 +156,16 @@
           columns.push(newColumn)
         }
         this.columns = columns
+      },
+      dropTable: function (tableName) {
+        return this
+          .$store.dispatch('table_drop', {
+            db: this.database,
+            tableName: tableName
+          })
+          .then((res) => {
+            console.log(res)
+          })
       }
     }
   }
