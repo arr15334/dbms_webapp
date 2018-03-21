@@ -49,9 +49,15 @@
         }
         if (action === 'ALTER') {
           if (obj === 'DATABASE') {
-            //
+            const actualDb = query[2]
+            const newName = query[5]
+            this.renameDatabase(actualDb, newName)
           } else if (obj === 'TABLE') {
-            // d
+            if (query[3] === 'RENAME') {
+              const oldTable = query[2]
+              const newTable = query[5]
+              this.renameTable(oldTable, newTable)
+            }
           } else {
             // error
           }
@@ -105,6 +111,13 @@
             console.log(res)
           })
       },
+      renameDatabase: function (db, newName) {
+        return this
+          .$store.dispatch('database_rename', {
+            db: db,
+            newName: newName
+          })
+      },
       dropDatabase: function (name) {
         return this
           .$store.dispatch('database_drop', {
@@ -156,6 +169,17 @@
           columns.push(newColumn)
         }
         this.columns = columns
+      },
+      renameTable: function (oldName, newName) {
+        return this
+          .$store.dispatch('table_rename', {
+            db: this.database,
+            oldName: oldName,
+            newName: newName
+          })
+          .then((res) => {
+            console.log(res)
+          })
       },
       dropTable: function (tableName) {
         return this

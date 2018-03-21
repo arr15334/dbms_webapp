@@ -60,21 +60,41 @@ const actions = {
           reject(err)
         })
     })
-  }
-  database_drop (context, data ={}) {
+  },
+  database_drop (context, data = {}) {
     const env = config.env
     const apiRoot = config[env].apiRoot
     const db = data.db
-    let url = apiRoot+config.apiDatabases+'/'+db+'/drop'
+    let url = apiRoot + config.apiDatabases + '/' + db + '/drop'
 
     return new Promise((resolve, reject) => {
-      api.
-        destroy(url)
+      api
+        .delete(url)
         .then(response => {
           const data = response.data
-          resolve data
+          resolve(data)
         })
           .catch(err => {
+            reject(err)
+          })
+    })
+  },
+  database_rename (context, data = {}) {
+    const env = config.env
+    const apiRoot = config[env].apiRoot
+    const db = data.db
+    const newName = data.newName
+    let url = apiRoot + config.apiDatabases + '/' + db + '/rename'
+    const params = {
+      'new_name': newName
+    }
+    return new Promise((resolve, reject) => {
+      api
+        .put(url, params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
           reject(err)
         })
     })
