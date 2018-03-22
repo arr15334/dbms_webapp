@@ -1,23 +1,51 @@
 <template>
   <div class="container">
-    <div class="box">Query</div>
-    <input v-model="sqlQuery" placeholder="edit me">
-    <button v-on:click="analyseQuery" class="button is-dark">Execute  <i class="fa fa-bolt"></i></button>
-    <ul>
-      <li v-for="elem in elems">
-        {{elem}}
-      </li>
-    </ul>
+    <div class="box">
+      <h1 class="title"><i class="fa fa-codepen"></i> DBMS</h1>
+    </div>
+    <div class="columns">
+      <div class="column">
+        <FormInput
+          v-model="sqlQuery"
+          icon="terminal"
+          label="QUERY"
+          placeHolder="write your query here"/>
+
+          <FormCheckbox
+            v-model="Verbose"
+            label="verbose"/>
+      </div>
+      <div class="column">
+        <button v-on:click="analyseQuery" class="button is-dark" icon="bolt">Execute  <i class="fa fa-bolt"></i></button>
+      </div>
+    </div>
+    <div class="centered">
+
+    </div>
+
+    <table class="table is-bordered ">
+      <tbody>
+        <tr v-for="elem in elems" icon="database">
+          <i class="fa fa-database"></i> {{elem}}
+        </tr>
+      </tbody>
+    </table>
+    <div class="notification is-primary" v-show="false">
+      <button class="delete"></button>
+      SUCCESS!
+    </div>
   </div>
 </template>
 
 <script>
-  // cd Usuarios/Rodrigo/UVG/4/1/"Bases de datos"
+  import FormCheckbox from '@/components/common/FormCheckbox'
+  import FormInput from '@/components/common/FormInput'
   export default {
     name: 'dashboard',
 
     components: {
-
+      FormCheckbox,
+      FormInput
     },
 
     data () {
@@ -25,7 +53,8 @@
         elems: [],
         sqlQuery: null,
         database: null,
-        columns: []
+        columns: [],
+        verbose: false
       }
     },
 
@@ -195,4 +224,5 @@
   }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>
