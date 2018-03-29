@@ -13,7 +13,7 @@ const config = {
 
   apiTables: '/databases/{db}/tables',
   apiDatabases: '/databases',
-  apiQuery: '/databases/queries' 
+  apiQuery: '/databases/queries'
 }
 
 export default config

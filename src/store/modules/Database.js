@@ -124,7 +124,6 @@ const actions = {
         })
     })
   }
-  }
 }
 
 export default {

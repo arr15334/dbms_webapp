@@ -12,27 +12,46 @@
           placeHolder="write your query here"/>
 
           <FormCheckbox
-            v-model="Verbose"
+            v-model="verbose"
             label="verbose"/>
       </div>
       <div class="column">
-        <button v-on:click="analyseQuery" class="button is-dark" icon="bolt">Execute  <i class="fa fa-bolt"></i></button>
+        <button v-on:click="executeQuery" class="button is-dark" icon="bolt">Execute  <i class="fa fa-bolt"></i></button>
       </div>
     </div>
-    <div class="centered">
-
+    <div class="box">
+      <p> <strong>Result</strong> </p>
+      <table class="table is-bordered" v-show="showDatabases">
+        <tbody>
+          <tr v-for="db in databases" icon="database">
+            <i class="fa fa-database"></i> {{db}}
+          </tr>
+        </tbody>
+      </table>
+      <table class="table is-bordered" v-show="showTables">
+        <tbody>
+          <tr v-for="table in tables" icon="database">
+            <i class="fa fa-table"></i> {{table}}
+          </tr>
+        </tbody>
+      </table>
+      <table class="table is-bordered" v-show="showColumns">
+        <tbody>
+          <tr v-for="column in columns" icon="database">
+            <i class="fa fa-columns"></i> {{column}}
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <table class="table is-bordered ">
-      <tbody>
-        <tr v-for="elem in elems" icon="database">
-          <i class="fa fa-database"></i> {{elem}}
-        </tr>
-      </tbody>
-    </table>
-    <div class="notification is-primary" v-show="false">
+
+    <div class="notification is-primary" v-show="showNotificationSuccess">
       <button class="delete"></button>
-      SUCCESS!
+      {{ notificationMessage }}
+    </div>
+    <div class="notification is-danger" v-show="showNotificationDanger">
+      <button class="delete"></button>
+      {{notificationMessage}}
     </div>
   </div>
 </template>
@@ -50,17 +69,18 @@
 
     data () {
       return {
-        elems: [],
         sqlQuery: null,
         database: null,
         columns: [],
+        databases: [],
+        tables: [],
+        showDatabases: false,
+        showTables: false,
+        showColumns: false,
+        showNotificationSuccess: false,
+        showNotificationDanger: false,
+        notificationMessage: null,
         verbose: false
-      }
-    },
-    notifications: {
-      showSuccessMsg: {
-        type: VueNotifications.types.success,
-        message: 'Query realizado exitosamente'
       }
     },
 
@@ -70,9 +90,38 @@
           .$store.dispatch('execute_query', {
             sqlQuery: this.sqlQuery
           })
-          .then((res) => {
-            if(res.success) {
-              // this.showSuccessMsg
+          .then((result) => {
+            const res = result.data
+            // console.log(res)
+            if (res.success) {
+              if (res.type) {
+                if (res.type === 'databases') {
+                  this.databases = res.message
+                  this.showTables = false
+                  this.showColumns = false
+                  this.showDatabases = true
+                } else if (res.type === 'tables') {
+                  this.tables = res.message
+                  this.showTables = true
+                  this.showColumns = false
+                  this.showDatabases = false
+                } else if (res.type === 'columns') {
+                  this.columns = res.message
+                  this.showTables = false
+                  this.showColumns = true
+                  this.showDatabases = false
+                }
+              } else {
+                this.showNotificationSuccess = true
+                this.notificationMessage = res.message
+                // console.log(this.notificationMessage)
+                // console.log(res.message)
+                this.showNotificationDanger = false
+              }
+            } else {
+              this.showNotificationDanger = true
+              this.showNotificationSuccess = false
+              this.notificationMessage = res.message || 'Error servidor'
             }
           })
       }
