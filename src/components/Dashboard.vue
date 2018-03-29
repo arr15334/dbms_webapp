@@ -57,6 +57,12 @@
         verbose: false
       }
     },
+    notifications: {
+      showSuccessMsg: {
+        type: VueNotifications.types.success,
+        message: 'Query realizado exitosamente'
+      }
+    },
 
     methods: {
 

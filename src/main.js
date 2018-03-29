@@ -4,6 +4,7 @@ import Vue from 'vue'
 import axios from 'axios'
 import VueAnalytics from 'vue-analytics'
 import VueIntro from 'vue-introjs'
+import miniToastr from 'mini-toastr'
 
 import App from '@/App'
 import router from '@/router'
@@ -21,6 +22,17 @@ if (analytics !== null && analytics.length > 0) {
 }
 
 Vue.use(VueIntro)
+miniToastr.init()
+function toast ({ title, message, type, timeout, cb }) {
+  return miniToastr[type](message, title, timeout, cb)
+}
+const options = {
+  success: toast,
+  error: toast,
+  info: toast,
+  warn: toast
+}
+
 Vue.http = Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
