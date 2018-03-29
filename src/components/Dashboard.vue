@@ -65,7 +65,18 @@
     },
 
     methods: {
-
+      executeQuery: function () {
+        return this
+          .$store.dispatch('execute_query', {
+            sqlQuery: this.sqlQuery
+          })
+          .then((res) => {
+            if(res.success) {
+              // this.showSuccessMsg
+            }
+          })
+      }
+      /*
       analyseQuery: function () {
         const query = this.sqlQuery.split(' ')
         const action = query[0]
@@ -226,6 +237,7 @@
             console.log(res)
           })
       }
+      */
     }
   }
 </script>
