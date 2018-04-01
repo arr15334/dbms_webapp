@@ -35,13 +35,25 @@
           </tr>
         </tbody>
       </table>
-      <table class="table is-bordered" v-show="showColumns">
-        <tbody>
-          <tr v-for="column in columns" icon="database">
-            <i class="fa fa-columns"></i> {{column}}
-          </tr>
-        </tbody>
-      </table>
+      <div v-show="showColumns">
+        <table class="table is-bordered">
+          <tbody>
+            <tr>
+              <th>Column</th>
+              <th>Type</th>
+            </tr>
+            <tr v-for="column in columns" icon="database">
+              <td> {{column.name}}</td>
+              <td>{{column.type}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div>
+          <p v-show="pk"> <i class="fa fa-key"></i> <strong>Primary Key: </strong>name: {{pk.name}},  columns: {{pk.elems}}</p>
+          <p v-show="fk"> <i class="fa fa-lock" aria-hidden="true"></i> <strong>Foreign Key: </strong>name: {{fk.name}}, elements: {{fk.elements}}, table: {{fk.referenceTable}} --> {{fk.referenceColumns}}</p>
+          <p v-show="ch"> <i class="fa fa-check-square-o"></i> <strong>Check: </strong> name: {{ch.name}}</p>
+        </div>
+      </div>
     </div>
 
 
@@ -72,6 +84,10 @@
         sqlQuery: null,
         database: null,
         columns: [],
+        constraints: [],
+        pk: '',
+        fk: '',
+        ch: '',
         databases: [],
         tables: [],
         showDatabases: false,
@@ -106,10 +122,10 @@
                   this.showColumns = false
                   this.showDatabases = false
                 } else if (res.type === 'columns') {
-                  this.columns = res.message
                   this.showTables = false
                   this.showColumns = true
                   this.showDatabases = false
+                  return this.formatColumns(res.message)
                 }
               } else {
                 this.showNotificationSuccess = true
@@ -124,6 +140,31 @@
               this.notificationMessage = res.message || 'Error servidor'
             }
           })
+      },
+      formatColumns: function (m) {
+        this.columns = []
+        this.constraints = []
+        this.pk = ''
+        this.fk = ''
+        this.ch = ''
+        let columnKeys = Object.keys(m.columns)
+        let constraintKeys = Object.keys(m.constraints)
+        for (const key of columnKeys) {
+          this.columns.push({
+            'name': key,
+            'type': m.columns[key].type
+          })
+        }
+        for (const constraint of constraintKeys) {
+          if (constraint === 'primaryKey') {
+            this.pk = m.constraints[constraint]
+            console.log(this.pk)
+          } else if (constraint === 'foreignKey') {
+            this.fk = m.constraints[constraint]
+          } else if (constraint === 'check') {
+            this.ch = m.constraints[constraint]
+          }
+        }
       }
       /*
       analyseQuery: function () {
