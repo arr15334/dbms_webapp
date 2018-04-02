@@ -1,4 +1,5 @@
 <template>
+  <!-- Contenedor de toda la Webapp -->
   <div class="container">
     <div class="box">
       <h1 class="title"><i class="fa fa-codepen"></i> DBMS</h1>
@@ -84,8 +85,9 @@
                        @cancel="cancelConfirm"/>
   </div>
 </template>
-
 <script>
+
+  //Script donde se realiza los metodos de comunicación de la webapp
   import FormCheckbox from '@/components/common/FormCheckbox'
   import FormInput from '@/components/common/FormInput'
   import Loader from '@/components/common/Loader'
@@ -100,6 +102,7 @@
       Loader
     },
 
+    //Formato de la data, que se va a enviar al servidor. 
     data () {
       return {
         sqlQuery: null,
@@ -126,6 +129,9 @@
       }
     },
 
+    //Metodos de la Webapp
+    //ExecuteQuery, manda la query actual al sevidor y espera la respuesta
+    //CheckIfDrop, chequea si hay un DROP TABLE y pregunta si realmente quiere eliminar la tabla
     methods: {
       checkIfDrop: function () {
         if (!this.sqlQuery) {
@@ -160,6 +166,7 @@
         this.showNotificationDanger = false
         this.showNotificationSuccess = false
 
+        //Se utiliza el modulo store, para hacer el post de las queries al servidor
         return this
           .$store.dispatch('execute_query', {
             sqlQuery: this.sqlQuery
@@ -174,6 +181,8 @@
                 this.showSelected = true
                 return
               }
+
+              //Segn el tipo de respuesta del servidor se escoge que mensaje mostrar, y como mostrar el resultado
               if (res.type) {
                 if (res.type === 'databases') {
                   this.databases = res.message
@@ -217,6 +226,7 @@
             this.isLoading = false
           })
       },
+      //Metodo para dale formato a las columnas que devuelve el select.
       formatColumns: function (m) {
         this.columns = []
         this.constraints = []
@@ -242,172 +252,11 @@
           }
         }
       },
+      //Metodo para confirmar o cancelar la confirmacion del DROP
       cancelConfirm: function () {
         this.sqlQuery = null
         this.showConfirm = false
       }
-      /*
-      analyseQuery: function () {
-        const query = this.sqlQuery.split(' ')
-        const action = query[0]
-        const obj = query[1]
-
-        if (action === 'CREATE') {
-          if (obj === 'DATABASE') {
-            this.addDatabase(query[2])
-          } else if (obj === 'TABLE') {
-            const name = query[2]
-            this.formatTable()
-            this.addTable(name)
-          } else {
-            // error
-          }
-        }
-        if (action === 'ALTER') {
-          if (obj === 'DATABASE') {
-            const actualDb = query[2]
-            const newName = query[5]
-            this.renameDatabase(actualDb, newName)
-          } else if (obj === 'TABLE') {
-            if (query[3] === 'RENAME') {
-              const oldTable = query[2]
-              const newTable = query[5]
-              this.renameTable(oldTable, newTable)
-            }
-          } else {
-            // error
-          }
-        }
-        if (action === 'SHOW') {
-          if (obj === 'DATABASES') {
-            this.getDatabases()
-          } else if (obj === 'TABLES') {
-            this.getTables()
-          } else if (obj === 'COLUMNS') {
-            // e
-          } else {
-            // error
-          }
-        }
-        if (action === 'DROP') {
-          if (obj === 'DATABASE') {
-            this.dropDatabase(query[2])
-          } else if (obj === 'TABLE') {
-            this.dropTable(query[2])
-          } else {
-            // error
-          }
-        }
-        if (action === 'USE') {
-          if (obj === 'DATABASE') {
-            this.database = query[2]
-          } else {
-            // error
-          }
-        }
-      },
-      getDatabases: function () {
-        return this
-          .$store.dispatch('databases_get')
-          .then((dbs) => {
-            console.log(dbs.data.dbs)
-            const dbsArr = dbs.data.dbs
-            this.elems = []
-            for (const db of dbsArr) {
-              this.elems.push(db)
-            }
-          })
-      },
-      addDatabase: function (name) {
-        return this
-          .$store.dispatch('database_create', {
-            dbName: name
-          })
-          .then((res) => {
-            console.log(res)
-          })
-      },
-      renameDatabase: function (db, newName) {
-        return this
-          .$store.dispatch('database_rename', {
-            db: db,
-            newName: newName
-          })
-      },
-      dropDatabase: function (name) {
-        return this
-          .$store.dispatch('database_drop', {
-            db: name
-          })
-          .then((res) => {
-            console.log(res)
-          })
-      },
-      getTables: function () {
-        return this
-          .$store.dispatch('tables_get', {
-            db: this.database
-          })
-          .then(tables => {
-            this.elems = []
-            const tableArr = tables.data.tables
-            for (const table of tableArr) {
-              this.elems.push(table)
-            }
-          })
-      },
-      addTable: function (name) {
-        const data = {
-          db: this.database,
-          tableName: name,
-          columns: this.columns
-        }
-        return this
-          .$store.dispatch('table_create', data)
-          .then((res) => {
-            console.log(this.columns)
-            console.log(res)
-          })
-      },
-      formatTable: function (query) {
-        let columns = []
-        let columnDecl = this.sqlQuery.split('(')[1]
-        columnDecl = columnDecl.replace(')', '')
-        const cols = columnDecl.split(',')
-        console.log(cols)
-        for (let col in cols) {
-          const cType = col.split(' ')[0]
-          const cName = col.split(' ')[1]
-          const newColumn = {
-            name: cName,
-            type: cType
-          }
-          columns.push(newColumn)
-        }
-        this.columns = columns
-      },
-      renameTable: function (oldName, newName) {
-        return this
-          .$store.dispatch('table_rename', {
-            db: this.database,
-            oldName: oldName,
-            newName: newName
-          })
-          .then((res) => {
-            console.log(res)
-          })
-      },
-      dropTable: function (tableName) {
-        return this
-          .$store.dispatch('table_drop', {
-            db: this.database,
-            tableName: tableName
-          })
-          .then((res) => {
-            console.log(res)
-          })
-      }
-      */
     }
   }
 </script>
