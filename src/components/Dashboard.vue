@@ -16,11 +16,12 @@
             label="verbose"/>
       </div>
       <div class="column">
-        <button v-on:click="executeQuery" class="button is-dark" icon="bolt">Execute  <i class="fa fa-bolt"></i></button>
+        <button v-on:click="checkIfDrop" class="button is-dark" icon="bolt">Execute  <i class="fa fa-bolt"></i></button>
       </div>
     </div>
     <div class="box">
       <p> <strong>Result</strong> </p>
+      <loader :is-loading="isLoading"/>
       <table class="table is-bordered" v-show="showDatabases">
         <tbody>
           <tr v-for="db in databases" icon="database">
@@ -57,26 +58,34 @@
     </div>
 
 
-    <div class="notification is-primary" v-show="showNotificationSuccess">
-      <button class="delete"></button>
+    <div class="notification is-primary" v-show="showNotificationSuccess && verbose">
+      <button class="delete" v-on:click="showNotificationSuccess = false"></button>
       {{ notificationMessage }}
     </div>
     <div class="notification is-danger" v-show="showNotificationDanger">
-      <button class="delete"></button>
+      <button class="delete"  v-on:click="showNotificationDanger = false"></button>
       {{notificationMessage}}
     </div>
+    <confirm-modal :show-confirm="showConfirm"
+                       confirm-msg="¿Realmente desea remover esta base de datos?"
+                       @accept="executeQuery"
+                       @cancel="cancelConfirm"/>
   </div>
 </template>
 
 <script>
   import FormCheckbox from '@/components/common/FormCheckbox'
   import FormInput from '@/components/common/FormInput'
+  import Loader from '@/components/common/Loader'
+  import ConfirmModal from '@/components/common/ConfirmModal'
   export default {
     name: 'dashboard',
 
     components: {
       FormCheckbox,
-      FormInput
+      FormInput,
+      ConfirmModal,
+      Loader
     },
 
     data () {
@@ -96,12 +105,39 @@
         showNotificationSuccess: false,
         showNotificationDanger: false,
         notificationMessage: null,
+        isLoading: false,
+        showConfirm: false,
+        confirmMsg: null,
         verbose: false
       }
     },
 
     methods: {
+      checkIfDrop: function () {
+        if (!this.sqlQuery) {
+          this.showNotificationDanger = true
+          this.verbose = true
+          this.notificationMessage = 'Query vacio'
+          return
+        }
+        if (this.sqlQuery.includes('DROP')) {
+          let queryParts = this.sqlQuery.split(' ')
+          if (queryParts[1] === 'DATABASE') {
+            this.confirmMsg = '¿Realmente desea remover base de datos' + queryParts[2] + '?'
+            this.showConfirm = true
+          }
+        } else {
+          this.executeQuery()
+        }
+      },
       executeQuery: function () {
+        if (!this.sqlQuery) {
+          this.showNotificationDanger = true
+          this.verbose = true
+          this.notificationMessage = 'Query vacio'
+          return
+        }
+        this.isLoading = true
         return this
           .$store.dispatch('execute_query', {
             sqlQuery: this.sqlQuery
@@ -116,15 +152,24 @@
                   this.showTables = false
                   this.showColumns = false
                   this.showDatabases = true
+                  this.showNotificationSuccess = true
+                  this.showNotificationDanger = false
+                  this.notificationMessage = 'Showing existing databases'
                 } else if (res.type === 'tables') {
                   this.tables = res.message
                   this.showTables = true
                   this.showColumns = false
                   this.showDatabases = false
+                  this.showNotificationSuccess = true
+                  this.showNotificationDanger = false
+                  this.notificationMessage = 'Showing tables for current database'
                 } else if (res.type === 'columns') {
                   this.showTables = false
                   this.showColumns = true
                   this.showDatabases = false
+                  this.showNotificationSuccess = true
+                  this.showNotificationDanger = false
+                  this.notificationMessage = 'Showing columns for the selected table'
                   return this.formatColumns(res.message)
                 }
               } else {
@@ -137,8 +182,17 @@
             } else {
               this.showNotificationDanger = true
               this.showNotificationSuccess = false
+              if (res.message) {
+                if (res.message.token) {
+                  this.notificationMessage = 'Bad query: unexpected token: ' + res.message.token.value
+                  return
+                }
+              }
               this.notificationMessage = res.message || 'Error servidor'
             }
+          })
+          .then(() => {
+            this.isLoading = false
           })
       },
       formatColumns: function (m) {
@@ -165,6 +219,10 @@
             this.ch = m.constraints[constraint]
           }
         }
+      },
+      cancelConfirm: function () {
+        this.sqlQuery = null
+        this.showConfirm = false
       }
       /*
       analyseQuery: function () {

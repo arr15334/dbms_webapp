@@ -1,17 +1,11 @@
 <template>
   <div align="center" class="cssload-fond" v-if="isLoading">
     <div class="cssload-container-general">
-      <div class="cssload-internal">
-        <div class="cssload-ballcolor cssload-ball_1"> </div>
-      </div>
-      <div class="cssload-internal">
-        <div class="cssload-ballcolor cssload-ball_2"> </div>
-      </div>
-      <div class="cssload-internal">
-        <div class="cssload-ballcolor cssload-ball_3"> </div>
-      </div>
-      <div class="cssload-internal">
-        <div class="cssload-ballcolor cssload-ball_4"> </div>
+      <div class="sk-folding-cube">
+        <div class="sk-cube1 sk-cube"></div>
+        <div class="sk-cube2 sk-cube"></div>
+        <div class="sk-cube4 sk-cube"></div>
+        <div class="sk-cube3 sk-cube"></div>
       </div>
     </div>
   </div>
@@ -51,178 +45,92 @@
     height: 105px;
     position: absolute;
   }
-
-  .cssload-ballcolor {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+  .sk-folding-cube {
+    margin: 20px auto;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    -webkit-transform: rotateZ(45deg);
+            transform: rotateZ(45deg);
   }
 
-  .cssload-ball_1, .cssload-ball_2, .cssload-ball_3, .cssload-ball_4 {
+  .sk-folding-cube .sk-cube {
+    float: left;
+    width: 50%;
+    height: 50%;
+    position: relative;
+    -webkit-transform: scale(1.1);
+        -ms-transform: scale(1.1);
+            transform: scale(1.1);
+  }
+  .sk-folding-cube .sk-cube:before {
+    content: '';
     position: absolute;
-    animation: cssload-animball_one 1.15s infinite ease;
-    -o-animation: cssload-animball_one 1.15s infinite ease;
-    -ms-animation: cssload-animball_one 1.15s infinite ease;
-    -webkit-animation: cssload-animball_one 1.15s infinite ease;
-    -moz-animation: cssload-animball_one 1.15s infinite ease;
-  }
-
-  .cssload-ball_1 {
-    background-color: rgb(101, 223, 244);
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+    -webkit-animation: sk-foldCubeAngle 2.4s infinite linear both;
+            animation: sk-foldCubeAngle 2.4s infinite linear both;
+    -webkit-transform-origin: 100% 100%;
+        -ms-transform-origin: 100% 100%;
+            transform-origin: 100% 100%;
   }
-
-  .cssload-ball_2 {
-    background-color: rgb(25, 123, 188);
-    top: 0;
-    left: 57px;
+  .sk-folding-cube .sk-cube2 {
+    -webkit-transform: scale(1.1) rotateZ(90deg);
+            transform: scale(1.1) rotateZ(90deg);
   }
-
-  .cssload-ball_3 {
-    background-color: rgb(43, 56, 144);
-    top: 57px;
-    left: 0;
+  .sk-folding-cube .sk-cube3 {
+    -webkit-transform: scale(1.1) rotateZ(180deg);
+            transform: scale(1.1) rotateZ(180deg);
   }
-
-  .cssload-ball_4 {
-    background-color: rgb(238, 27, 38);
-    top: 57px;
-    left: 57px;
+  .sk-folding-cube .sk-cube4 {
+    -webkit-transform: scale(1.1) rotateZ(270deg);
+            transform: scale(1.1) rotateZ(270deg);
   }
-
-  @keyframes cssload-animball_one {
-    0% {
-      position: absolute;
-    }
-    50% {
-      top: 29px;
-      left: 29px;
-      position: absolute;
-      opacity: 0.5;
-    }
-    100% {
-      position: absolute;
-    }
+  .sk-folding-cube .sk-cube2:before {
+    -webkit-animation-delay: 0.3s;
+            animation-delay: 0.3s;
   }
-
-  @-o-keyframes cssload-animball_one {
-    0% {
-      position: absolute;
-    }
-    50% {
-      top: 29px;
-      left: 29px;
-      position: absolute;
-      opacity: 0.5;
-    }
-    100% {
-      position: absolute;
-    }
+  .sk-folding-cube .sk-cube3:before {
+    -webkit-animation-delay: 0.6s;
+            animation-delay: 0.6s;
   }
-
-  @-ms-keyframes cssload-animball_one {
-    0% {
-      position: absolute;
-    }
-    50% {
-      top: 29px;
-      left: 29px;
-      position: absolute;
-      opacity: 0.5;
-    }
-    100% {
-      position: absolute;
+  .sk-folding-cube .sk-cube4:before {
+    -webkit-animation-delay: 0.9s;
+            animation-delay: 0.9s;
+  }
+  @-webkit-keyframes sk-foldCubeAngle {
+    0%, 10% {
+      -webkit-transform: perspective(140px) rotateX(-180deg);
+              transform: perspective(140px) rotateX(-180deg);
+      opacity: 0;
+    } 25%, 75% {
+      -webkit-transform: perspective(140px) rotateX(0deg);
+              transform: perspective(140px) rotateX(0deg);
+      opacity: 1;
+    } 90%, 100% {
+      -webkit-transform: perspective(140px) rotateY(180deg);
+              transform: perspective(140px) rotateY(180deg);
+      opacity: 0;
     }
   }
 
-  @-webkit-keyframes cssload-animball_one {
-    0% {
-      position: absolute;
-    }
-    50% {
-      top: 29px;
-      left: 29px;
-      position: absolute;
-      opacity: 0.5;
-    }
-    100% {
-      position: absolute;
-    }
-  }
-
-  @-moz-keyframes cssload-animball_one {
-    0% {
-      position: absolute;
-    }
-    50% {
-      top: 29px;
-      left: 29px;
-      position: absolute;
-      opacity: 0.5;
-    }
-    100% {
-      position: absolute;
+  @keyframes sk-foldCubeAngle {
+    0%, 10% {
+      -webkit-transform: perspective(140px) rotateX(-180deg);
+              transform: perspective(140px) rotateX(-180deg);
+      opacity: 0;
+    } 25%, 75% {
+      -webkit-transform: perspective(140px) rotateX(0deg);
+              transform: perspective(140px) rotateX(0deg);
+      opacity: 1;
+    } 90%, 100% {
+      -webkit-transform: perspective(140px) rotateY(180deg);
+              transform: perspective(140px) rotateY(180deg);
+      opacity: 0;
     }
   }
-
-  @keyframes cssload-animball_two {
-    0% {
-      transform: rotate(0deg) scale(1);
-    }
-    50% {
-      transform: rotate(360deg) scale(1.3);
-    }
-    100% {
-      transform: rotate(720deg) scale(1);
-    }
-  }
-
-  @-o-keyframes cssload-animball_two {
-    0% {
-      -o-transform: rotate(0deg) scale(1);
-    }
-    50% {
-      -o-transform: rotate(360deg) scale(1.3);
-    }
-    100% {
-      -o-transform: rotate(720deg) scale(1);
-    }
-  }
-
-  @-ms-keyframes cssload-animball_two {
-    0% {
-      -ms-transform: rotate(0deg) scale(1);
-    }
-    50% {
-      -ms-transform: rotate(360deg) scale(1.3);
-    }
-    100% {
-      -ms-transform: rotate(720deg) scale(1);
-    }
-  }
-
-  @-webkit-keyframes cssload-animball_two {
-    0% {
-      -webkit-transform: rotate(0deg) scale(1);
-    }
-    50% {
-      -webkit-transform: rotate(360deg) scale(1.3);
-    }
-    100% {
-      -webkit-transform: rotate(720deg) scale(1);
-    }
-  }
-
-  @-moz-keyframes cssload-animball_two {
-    0% {
-      -moz-transform: rotate(0deg) scale(1);
-    }
-    50% {
-      -moz-transform: rotate(360deg) scale(1.3);
-    }
-    100% {
-      -moz-transform: rotate(720deg) scale(1);
-    }
-  }
+  
 </style>
