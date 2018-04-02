@@ -13,11 +13,7 @@
           <input :type="type"
                  :placeholder="placeHolder"
                  :value="value"
-                 :maxlength="maxLength"
-                 :required="isRequired"
-                 :disabled="isDisabled"
                  class="input"
-                 :class="{ 'is-success': isSuccess, 'is-danger': isDanger }"
                  @input="updateValue($event.target.value)">
 
           <span class="icon is-left" v-if="hasIcon"><i class="fa" :class="iconClass"></i></span>
