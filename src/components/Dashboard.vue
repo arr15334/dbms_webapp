@@ -22,6 +22,18 @@
     <div class="box">
       <p> <strong>Result</strong> </p>
       <loader :is-loading="isLoading"/>
+      <table class="table is-bordered" v-show="showSelected">
+        <tbody>
+          <tr>
+            <th v-for="colum in columns">
+              <strong>{{column.name}}</strong> - {{column.type}}
+            </th>
+          </tr>
+          <tr v-for="register in registers">
+            <td> {{register}} </td>
+          </tr>
+        </tbody>
+      </table>
       <table class="table is-bordered" v-show="showDatabases">
         <tbody>
           <tr v-for="db in databases" icon="database">
@@ -50,7 +62,7 @@
           </tbody>
         </table>
         <div>
-          <p v-show="pk"> <i class="fa fa-key"></i> <strong>Primary Key: </strong>name: {{pk.name}},  columns: {{pk.elems}}</p>
+          <p v-show="pk"> <i class="fa fa-key"></i> <strong>Primary Key: </strong>name: {{pk.name}},  columns: {{pk.elements}}</p>
           <p v-show="fk"> <i class="fa fa-lock" aria-hidden="true"></i> <strong>Foreign Key: </strong>name: {{fk.name}}, elements: {{fk.elements}}, table: {{fk.referenceTable}} --> {{fk.referenceColumns}}</p>
           <p v-show="ch"> <i class="fa fa-check-square-o"></i> <strong>Check: </strong> name: {{ch.name}}</p>
         </div>
@@ -93,6 +105,7 @@
         sqlQuery: null,
         database: null,
         columns: [],
+        registers: [],
         constraints: [],
         pk: '',
         fk: '',
@@ -104,6 +117,7 @@
         showColumns: false,
         showNotificationSuccess: false,
         showNotificationDanger: false,
+        showSelected: false,
         notificationMessage: null,
         isLoading: false,
         showConfirm: false,
@@ -120,12 +134,11 @@
           this.notificationMessage = 'Query vacio'
           return
         }
-        if (this.sqlQuery.includes('DROP')) {
-          let queryParts = this.sqlQuery.split(' ')
-          if (queryParts[1] === 'DATABASE') {
-            this.confirmMsg = '¿Realmente desea remover base de datos' + queryParts[2] + '?'
-            this.showConfirm = true
-          }
+        let queryParts = this.sqlQuery.split(' ')
+        if (this.sqlQuery.includes('DROP') && queryParts[1] === 'DATABASE') {
+          this.confirmMsg = '¿Realmente desea remover base de datos' + queryParts[2] + '?'
+          this.showConfirm = true
+          return
         } else {
           this.executeQuery()
         }
@@ -137,7 +150,16 @@
           this.notificationMessage = 'Query vacio'
           return
         }
+        // show loader
         this.isLoading = true
+        // reset show values
+        this.showSelected = false
+        this.showTables = false
+        this.showColumns = false
+        this.showDatabases = false
+        this.showNotificationDanger = false
+        this.showNotificationSuccess = false
+
         return this
           .$store.dispatch('execute_query', {
             sqlQuery: this.sqlQuery
@@ -146,42 +168,39 @@
             const res = result.data
             // console.log(res)
             if (res.success) {
+              if (res.columns && res.registers) {
+                this.formatColumns(res.columns)
+                this.registers = res.registers
+                this.showSelected = true
+                return
+              }
               if (res.type) {
                 if (res.type === 'databases') {
                   this.databases = res.message
-                  this.showTables = false
-                  this.showColumns = false
                   this.showDatabases = true
                   this.showNotificationSuccess = true
-                  this.showNotificationDanger = false
                   this.notificationMessage = 'Showing existing databases'
+                  return
                 } else if (res.type === 'tables') {
                   this.tables = res.message
                   this.showTables = true
-                  this.showColumns = false
-                  this.showDatabases = false
                   this.showNotificationSuccess = true
-                  this.showNotificationDanger = false
                   this.notificationMessage = 'Showing tables for current database'
+                  return
                 } else if (res.type === 'columns') {
-                  this.showTables = false
                   this.showColumns = true
-                  this.showDatabases = false
                   this.showNotificationSuccess = true
-                  this.showNotificationDanger = false
                   this.notificationMessage = 'Showing columns for the selected table'
                   return this.formatColumns(res.message)
                 }
               } else {
                 this.showNotificationSuccess = true
                 this.notificationMessage = res.message
-                // console.log(this.notificationMessage)
-                // console.log(res.message)
-                this.showNotificationDanger = false
+                return
               }
             } else {
               this.showNotificationDanger = true
-              this.showNotificationSuccess = false
+
               if (res.message) {
                 if (res.message.token) {
                   this.notificationMessage = 'Bad query: unexpected token: ' + res.message.token.value
@@ -190,6 +209,9 @@
               }
               this.notificationMessage = res.message || 'Error servidor'
             }
+          })
+          .then(() => {
+            this.showConfirm = false
           })
           .then(() => {
             this.isLoading = false

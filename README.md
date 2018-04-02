@@ -1,6 +1,6 @@
-# mhfile-webapp
+# DBMS-webapp
 
-> MHFile's Webapp
+> dbms Webapp
 
 ## Build Setup
 
